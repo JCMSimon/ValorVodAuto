@@ -5,7 +5,9 @@ import threading
 from PIL import Image,ImageDraw,ImageFont
 from dotenv import load_dotenv
 
+from yt_dlp import YoutubeDL
 from googleapiclient.discovery import build
+
 
 class ValorVod:
 	def __init__(self) -> None:
@@ -47,9 +49,9 @@ class ValorVod:
 		self.checkForNewVideos()
 
 	def processVid(self, id:str):
-		# This is ugly af but it gets the agent, player and map
+		# Title
 		description = self.getVideoDescription(id)
-		description_words = set(word.lower() for word in description.split(" "))
+		description_words = set(word.lower() for word in description.replace("kay/o","kayo").split(" "))
 		try:
 			player = description.split("twitch.tv/")[1].split("\n")[0].capitalize()
 			agent:str = [agent for agent in self.data["agents"] if agent in description_words][0].capitalize()
@@ -57,20 +59,28 @@ class ValorVod:
 		except Exception as  e:
 			print(e)
 			# unsupported map or agent or player didnt work, skip
-			return
-		
+			return		
 		title= f"[VV] {player} - {vmap} - {agent}"
-		print(title)
+		# Download video
+		with YoutubeDL({'outtmpl': f"./videos/{id}.mp4",}) as ydl:
+			ydl.download([f"https://youtube.com/watch?v={id}"])
+		# Thumbnail
 		base = Image.open("./assets/thumbnail_base.png")
 		draw = ImageDraw.Draw(base)
 		font = ImageFont.truetype("./assets/fonts/Valorant Font.ttf",size=145)
-		_, _, w, _ = draw.textbbox((480,208),player,font=font)
-		draw.text((480,208),player,(235,233,226),align="center",font=font)
-		base.save(f"./assets/{id}.png")
-				
-		# need thumbnail and dl and upload vid
+		_, _, w, h = draw.textbbox(xy=(0,0),text=player,font=font)
+		draw.text((485 - (w / 2),180),player,(235,233,226),font=font)
+		_, _, w, h = draw.textbbox(xy=(0,0),text=agent,font=font)
+		draw.text((485 - (w / 2),490),agent,(235,233,226),font=font)
+		_, _, w, h = draw.textbbox(xy=(0,0),text=vmap,font=font)
+		draw.text((485 - (w / 2),800),vmap,(235,233,226),font=font)		
+		agentImage = Image.open(f"./assets/agents/{agent.lower()}.png")
+		base.alpha_composite(agentImage,(1000,80))
+		base.save(f"./assets/vThumbnails/{id}.png")		
 		self.processed_vids.append(id)
-		
+		print(title)
+		base.show()
+		# upload video here once its downloaded
 		
 	def getVideoDescription(self,id):
 		request = self.ytAPI.videos().list(
@@ -86,3 +96,24 @@ if __name__ == "__main__":
 	myapp.start()
 	while True:
 		time.sleep(60)
+		
+	# base = Image.open("./assets/thumbnail_base.png")
+	# draw = ImageDraw.Draw(base)
+	# font = ImageFont.truetype("./assets/fonts/Valorant Font.ttf",size=140)
+	# player="temet"
+	# vmap="Icebox"
+	# agent="Neon"
+	
+	# _, _, w, h = draw.textbbox(xy=(0,0),text=player,font=font)
+	# draw.text((485 - (w / 2),180),player,(235,233,226),font=font)
+	
+	# _, _, w, h = draw.textbbox(xy=(0,0),text=agent,font=font)
+	# draw.text((485 - (w / 2),490),agent,(235,233,226),font=font)
+	
+	# _, _, w, h = draw.textbbox(xy=(0,0),text=vmap,font=font)
+	# draw.text((485 - (w / 2),800),vmap,(235,233,226),font=font)
+
+	# agentImage = Image.open("./assets/agents/iso.png")
+	# base.alpha_composite(agentImage,(1000,80))
+	
+	# base.save(f"./assets/test.png")
