@@ -48,11 +48,11 @@ class ValorVod:
 					time.sleep(10)
 			time.sleep(((60 * 60) * 3) + (60 * 10))
 
-	def process_vid(self, id: str, download=True):
+	def process_vid(self, id: str, download=False):
 		try:
-			description = self.get_video_description(id)
+			description = self.get_video_description(id).lower().replace("kay/o","kayo")
 			description_words = set(word.lower() for word in description.replace("kay/o", "kayo").split(" "))
-			player = description.split("twitch.tv/")[1].split("\n")[0].capitalize().replace("official", "")
+			player = description.split("twitch.tv/")[1].split("\n")[0].capitalize()
 			agent = [agent for agent in self.data["agents"] if agent in description_words][0].capitalize()
 			vmap = [vmap for vmap in self.data["maps"] if vmap in description_words][0].capitalize()
 		except Exception as e:
@@ -67,7 +67,7 @@ class ValorVod:
 		map_image = Image.open(f"./assets/maps/{vmap.lower()}.png")
 		map_image.alpha_composite(Image.open("./assets/thumbnail_base.png"), (0, 0))
 		draw = ImageDraw.Draw(map_image)
-		font = ImageFont.truetype("./assets/fonts/Valorant Font.ttf", size=145)
+		font = ImageFont.truetype("./assets/fonts/Valorant Font.ttf", size=140)
 		for text, y_coord in zip([player, agent, vmap], [180, 495, 810]):
 			_,_,text_width,_ = draw.textbbox(xy=(0,0),text=text, font=font)
 			draw.text((485 - (text_width // 2), y_coord), text, (235, 233, 226), font=font)
@@ -78,7 +78,7 @@ class ValorVod:
 		print(title)
 		map_image.show()
 
-		# upload video
+		# upload video idk how bruh
 		
 			
 	def get_video_description(self, id):
@@ -93,7 +93,7 @@ class ValorVod:
 
 if __name__ == "__main__":
 	my_app = ValorVod()
-	# my_app.start()
-	my_app.process_vid("MQs5Lzo13_E",download=False)
+	my_app.start()
+	# my_app.process_vid("Cs68gUuxROI")
 	while True:
 		time.sleep(60)
