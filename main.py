@@ -53,16 +53,16 @@ class ValorVod:
 		description = self.getVideoDescription(id)
 		description_words = set(word.lower() for word in description.replace("kay/o","kayo").split(" "))
 		try:
-			player = description.split("twitch.tv/")[1].split("\n")[0].capitalize()
+			player = description.split("twitch.tv/")[1].split("\n")[0].capitalize().replace("official","")
 			agent:str = [agent for agent in self.data["agents"] if agent in description_words][0].capitalize()
 			vmap:str = [vmap for vmap in self.data["maps"] if vmap in description_words][0].capitalize()
 		except Exception as  e:
-			print(e)
+			print("skipping",id)
 			# unsupported map or agent or player didnt work, skip
 			return		
 		title= f"[VV] {player} - {vmap} - {agent}"
 		# Download video
-		with YoutubeDL({'outtmpl': f"./videos/{id}.mp4",}) as ydl:
+		with YoutubeDL({'outtmpl': f"./assets/videos/{id}.mp4",}) as ydl:
 			ydl.download([f"https://youtube.com/watch?v={id}"])
 		# Thumbnail
 		base = Image.open("./assets/thumbnail_base.png")
@@ -93,27 +93,7 @@ class ValorVod:
 
 if __name__ == "__main__":
 	myapp = ValorVod()
-	myapp.start()
+	# myapp.start()
+	myapp.processVid("MQs5Lzo13_E")
 	while True:
 		time.sleep(60)
-		
-	# base = Image.open("./assets/thumbnail_base.png")
-	# draw = ImageDraw.Draw(base)
-	# font = ImageFont.truetype("./assets/fonts/Valorant Font.ttf",size=140)
-	# player="temet"
-	# vmap="Icebox"
-	# agent="Neon"
-	
-	# _, _, w, h = draw.textbbox(xy=(0,0),text=player,font=font)
-	# draw.text((485 - (w / 2),180),player,(235,233,226),font=font)
-	
-	# _, _, w, h = draw.textbbox(xy=(0,0),text=agent,font=font)
-	# draw.text((485 - (w / 2),490),agent,(235,233,226),font=font)
-	
-	# _, _, w, h = draw.textbbox(xy=(0,0),text=vmap,font=font)
-	# draw.text((485 - (w / 2),800),vmap,(235,233,226),font=font)
-
-	# agentImage = Image.open("./assets/agents/iso.png")
-	# base.alpha_composite(agentImage,(1000,80))
-	
-	# base.save(f"./assets/test.png")
