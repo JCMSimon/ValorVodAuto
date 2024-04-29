@@ -3,10 +3,8 @@ import threading
 import time
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
 from PIL import Image, ImageDraw, ImageFont
 from yt_dlp import YoutubeDL
-from google.oauth2 import service_account
 
 
 
@@ -80,31 +78,8 @@ class ValorVod:
 		print(title)
 		map_image.show()
 
-		SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
-		creds = service_account.Credentials.from_service_account_file("./valorvod-4b0252c4525b.json")
-		creds = creds.with_scopes(SCOPES)
-		self.ytAPI2 = build('youtube', 'v3', credentials=creds)
-
-		# Upload video
-		file_path = f"./assets/videos/{id}.mp4"
-		chunk_size = 10 * 1024 * 1024  # 10 MB chunk size
-		media = MediaFileUpload(file_path, chunksize=chunk_size, resumable=False)
-		request = self.ytAPI2.videos().insert(
-			part="snippet,status",
-			body={
-				"snippet": {
-					"categoryId": "20",  # Gaming
-					"description": f"[VV] {player} playing {agent} on {vmap}",
-					"title": f"{title}"
-				},
-				"status": {
-					"privacyStatus": "private"
-				}
-			},
-			media_body=media
-		)
-		request.execute()
-		print("Video upload complete!")
+		# upload video
+		
 			
 	def get_video_description(self, id):
 		request = self.ytAPI.videos().list(
