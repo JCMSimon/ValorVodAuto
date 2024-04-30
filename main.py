@@ -23,14 +23,14 @@ class ValData:
 class youtubeVideo():
 	def __init__(self,data,description) -> None:
 		self.VIDEO_ID:str = data["id"]["videoId"]
-		logMessage(f"Getting title for video with videoId {self.VIDEO_ID}")
+		logMessage(f"[{self.VIDEO_ID}] [✍️] Getting title")
 		self.VIDEO_TITLE:str = data["snippet"]["title"] 
 		self.VIDEO_DESCRIPTION:str = "".join([char for char in description.replace("\n","LLBB") if char.isalnum()]) 
-		logMessage(f"Getting Valorant map for video with videoId {self.VIDEO_ID}")
+		logMessage(f"[{self.VIDEO_ID}] [🗺️] Getting valorant map")
 		self.VAL_MAP = [vmap for vmap in ValData.maps if vmap in self.VIDEO_DESCRIPTION.lower()][0]
-		logMessage(f"Getting Valorant agent for video with videoId {self.VIDEO_ID}")
+		logMessage(f"[{self.VIDEO_ID}] [👤] Getting valorant agent")
 		self.VAL_AGENT = [agent for agent in ValData.agents if agent in self.VIDEO_DESCRIPTION.lower()][0]
-		logMessage(f"Getting Valorant player for video with videoId {self.VIDEO_ID}")
+		logMessage(f"[{self.VIDEO_ID}] [🤺] Getting valorant player")
 		self.VAL_PLAYER = self.VIDEO_DESCRIPTION.split("wwwtwitchtv")[1].split("LLBB")[0]
 		
 class ValorVod:
@@ -90,7 +90,7 @@ class ValorVod:
 		return response.get('items', [])
 		
 	def getVideoDescription(self, videoId) -> str:
-		logMessage(f"Getting description for video with videoId {videoId}")
+		logMessage(f"[{videoId}] [📖] Getting description")
 		request = self.ytAPI.videos().list(
 			part='snippet',
 			id=videoId,
@@ -100,6 +100,7 @@ class ValorVod:
 		return vid_data[0]["snippet"]["description"]
 
 	def processVid(self, videoData:dict):
+		print("")
 		VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData["id"]["videoId"]))
 		# Start download in background
 		vidDownloadThread = threading.Thread(
@@ -114,19 +115,25 @@ class ValorVod:
 		).replace("%VA",VIDEO.VAL_AGENT.capitalize()
 		).replace("%VM",VIDEO.VAL_MAP.capitalize()
 		)
-		logMessage(f"Generated title '{title}' for videoId {VIDEO.VIDEO_ID}")
-		description = f"{VIDEO.VAL_PLAYER.capitalize()} playing {VIDEO.VAL_AGENT.capitalize()} on {VIDEO.VAL_MAP.capitalize()}!\n\n\nAll {VIDEO.VAL_PLAYER} VODs here: https://twitch.tv/{VIDEO.VAL_PLAYER}/videos\n\n\n\n\n\n\n\n\nTAGS:\nvalorant pro player full twitch vod\nvalorant pro player full twich\nvalorant pro player full\nvalorant pro player\nvalorant pro\nvalorant\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP}\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT}\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_MAP}\n{VIDEO.VAL_PLAYER}\nvalorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP} {VIDEO.VAL_PLAYER}\nvalorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP}\nvalorant pro guide {VIDEO.VAL_AGENT}\nvalorant pro guide\npro Guide\n{datetime.now().month}/{datetime.now().year}\n{datetime.now().year}"
-		logMessage(f"Generated description '{description}' for videoId {VIDEO.VIDEO_ID}")
+		logMessage(f"[{VIDEO.VIDEO_ID}] [🖊️] Generated title '{title}'")
+		description = f"{VIDEO.VAL_PLAYER.capitalize()} playing {VIDEO.VAL_AGENT} on {VIDEO.VAL_MAP}!\n\n\nAll {VIDEO.VAL_PLAYER.capitalize()} VODs here: https://twitch.tv/{VIDEO.VAL_PLAYER}/videos\n\n\n\n\n\n\n\n\nTAGS:\nvalorant pro player full twitch vod\nvalorant pro player full twich\nvalorant pro player full\nvalorant pro player\nvalorant pro\nvalorant\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP}\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT}\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_MAP}\n{VIDEO.VAL_PLAYER}\nvalorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP} {VIDEO.VAL_PLAYER}\nvalorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP}\nvalorant pro guide {VIDEO.VAL_AGENT}\nvalorant pro guide\npro Guide\n{datetime.now().month}/{datetime.now().year}\n{datetime.now().year}"
+		logMessage(f"[{VIDEO.VIDEO_ID}] [🧾] Generated description '{description.replace("\n","↩")}'")
 		tags = f"valorant pro player full twitch vod,valorant pro player full twitch,valorant pro player full,valorant pro player,valorant pro,valorant,{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP},{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT},{VIDEO.VAL_PLAYER} {VIDEO.VAL_MAP},{VIDEO.VAL_PLAYER},valorant Pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP} {VIDEO.VAL_PLAYER},valorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP},valorant pro guide {VIDEO.VAL_AGENT},guide,{datetime.now().month}/{datetime.now().year},{datetime.now().year}"
-		logMessage(f"Generated tags '{tags}' for videoId {VIDEO.VIDEO_ID}")
+		logMessage(f"[{VIDEO.VIDEO_ID}] [🏷️] Generated tags '{tags}'")
 		genThumbnail(VIDEO)
-		logMessage(f"Waiting for video with videoId {VIDEO.VIDEO_ID} to download")
-		# vidDownloadThread.join()
+		logMessage(f"[{VIDEO.VIDEO_ID}] [🕒] Waiting for video to download")
+		vidDownloadThread.join()
 		# Video is downloaded and all metadata is ready. Upload!
-		# self.uploadVideo(title,description,tags,VIDEO.VIDEO_ID)
-
+		uploadedVideoId = self.uploadVideo(title,description,tags,VIDEO.VIDEO_ID)
+		# Now upload the thumbnail
+		thumbnailFile = f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png"
+		self.uploadThumbnail(VIDEO.VIDEO_ID,uploadedVideoId,thumbnailFile)
+		# cleanup functionn for video and thumbnail
+		time.sleep(5)
+		cleanUp(VIDEO)
+	
+	
 	def uploadVideo(self, title, description, tags, internalVideoId):
-		thumbnailFile = f"./assets/vThumbnails/{internalVideoId}.png"
 		videoFile = f"./assets/videos/{internalVideoId}.mp4"
 		request = {
 			"snippet": {
@@ -138,7 +145,7 @@ class ValorVod:
 				"privacyStatus": "public"  # Set the privacy status of the video
 			}
 		}
-		logMessage(f"Starting upload of video with videoId {internalVideoId}")
+		logMessage(f"[{internalVideoId}] [🆙] Starting video upload")
 		# Execute the API request to upload the video
 		request = self.ytAPI.videos().insert(
 			part="snippet,status",
@@ -150,15 +157,15 @@ class ValorVod:
 		while response is None:
 			status, response = request.next_chunk()
 			if status:
-				logMessage(f"({internalVideoId}) Uploaded %d%%." % int(status.progress() * 100))
+				logMessage(f"[{internalVideoId}] [⚡] Uploaded {int(status.progress() * 100)}%.")
 		
-		logMessage(f"Upload of video with videoId {internalVideoId} completed")
-		# Now upload the thumbnail
-		# self.uploadThumbnail()
+		logMessage(f"[{internalVideoId}] [✅] Video Upload completed with new id: {response['id']}")
+		return response["id"]
 
-	def uploadThumbnail(self, internalVideoId, videoId, thumbnailFile):
+	def uploadThumbnail(self, internalVideoId, uploadedVideoId, thumbnailFile):
+		logMessage(f"[{internalVideoId}] [🆙] Starting thumbnail upload")
 		request = self.ytAPI.thumbnails().set(
-			videoId=videoId,
+			videoId=uploadedVideoId,
 			media_body=MediaFileUpload(thumbnailFile, chunksize=1 * 1024 * 1024, resumable=True)
 		)
 		response = request.execute()
@@ -166,10 +173,11 @@ class ValorVod:
 		while response is None:
 			status, response = request.next_chunk()
 			if status:
-				logMessage(f"({internalVideoId} - thumbnail) Uploaded %d%%." % int(status.progress() * 100))
+				logMessage(f"[{internalVideoId}] [⚡] Uploaded {int(status.progress() * 100)}%.")
+		logMessage(f"[{internalVideoId}] [✅] Thumbnail Upload completed")
 
 def genThumbnail(VIDEO:youtubeVideo):
-	logMessage(f"Creating Thumbnail for video with videoId {VIDEO.VIDEO_ID}")
+	logMessage(f"[{VIDEO.VIDEO_ID}] [🖼️] Creating Thumbnail")
 	# Load Assets
 	thumbnail:Image = Image.open(f"./assets/maps/{VIDEO.VAL_MAP}.png")
 	thumbnailBase = Image.open("./assets/thumbnailBase.png")
@@ -185,11 +193,10 @@ def genThumbnail(VIDEO:youtubeVideo):
 		draw.text((600 - (textWidth // 2), textHeight), text, (235, 233, 226), font=valFont)
 	# And then agent image
 	thumbnail.alpha_composite(valAgentImage, (thumbnail.width - valAgentImage.width - 120, 80))
-	logMessage(f"Thumbnail saved fro video with videoId {VIDEO.VIDEO_ID}")
 	thumbnail.save(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
 
 def downloadVideo(videoId) -> None:
-	logMessage(f"Downloading video with videoId {videoId}")
+	logMessage(f"[{videoId}] [⤵️] Downloading video")
 	try:
 		with YoutubeDL({
 			   'outtmpl'     : f"./assets/videos/{videoId}.mp4",
@@ -201,25 +208,30 @@ def downloadVideo(videoId) -> None:
 		logMessage(f"Something went wrong when downloading the video with videoId {videoId} ({e})") 
 
 def getAuthenticatedService() -> any:
-	if os.path.exists("./secrets/creds.pickle"):
-		with open("./secrets/creds.pickle", 'rb') as f:
-			logMessage("Using saved credentials.")
-			credentials = pickle.load(f)
-	else:	
-		authScopes = ["https://www.googleapis.com/auth/youtube.upload","https://www.googleapis.com/auth/youtube.readonly"]
-		flow = InstalledAppFlow.from_client_secrets_file("./secrets/secret.json", scopes=" ".join(authScopes))
-		credentials = flow.run_console()
-		with open("./secrets/creds.pickle", 'wb') as f:
-			pickle.dump(credentials, f)
-		logMessage("Saved credentials!")
-	return build("youtube", "v3", credentials = credentials)
+    if os.path.exists("./secrets/creds.pickle"):
+        with open("./secrets/creds.pickle", 'rb') as f:
+            logMessage("Using saved credentials")
+            credentials = pickle.load(f)
+    else:   
+        auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
+        flow = InstalledAppFlow.from_client_secrets_file("./secrets/secret.json", scopes=auth_scopes)
+        credentials = flow.run_local_server()
+        with open("./secrets/creds.pickle", 'wb') as f:
+            pickle.dump(credentials, f)
+        logMessage("Saved credentials")
+    return build("youtube", "v3", credentials=credentials)
+
+def cleanUp(VIDEO:youtubeVideo):
+	logMessage(f"[{VIDEO.VIDEO_ID}] [🥳] Processing done!")
+	os.remove(f"./assets/videos/{VIDEO.VIDEO_ID}.mp4")
+	os.remove(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
+	del VIDEO
 
 def logMessage(message:any):
 	print(f"[VV][{getTimeStamp()}] -> {message}")
 
 def getTimeStamp() -> str:
 		lt = localtime()
-		# These 3 line make sure it displays 05:05:05 instead of 5:5:5 (Propper 24 Hour Format)
 		return ":".join([str(lt.tm_hour),str(lt.tm_min),str(lt.tm_sec)])
 
 if __name__ == "__main__":
