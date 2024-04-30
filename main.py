@@ -108,7 +108,7 @@ class ValorVod:
 			args=[VIDEO.VIDEO_ID],
 			daemon=True
 		)
-		# vidDownloadThread.start()
+		vidDownloadThread.start()
 		# Get the metadata and thumbnail ready
 		title = self.videoTitleTemplate.replace(
 		"%VP",VIDEO.VAL_PLAYER.capitalize()
@@ -128,7 +128,7 @@ class ValorVod:
 		# Now upload the thumbnail
 		thumbnailFile = f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png"
 		self.uploadThumbnail(VIDEO.VIDEO_ID,uploadedVideoId,thumbnailFile)
-		# cleanup functionn for video and thumbnail
+		# cleanup function for video and thumbnail
 		time.sleep(5)
 		cleanUp(VIDEO)
 	
