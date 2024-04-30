@@ -117,9 +117,9 @@ class ValorVod:
 		)
 		logMessage(f"[{VIDEO.VIDEO_ID}] [🖊️] Generated title '{title}'")
 		description = f"{VIDEO.VAL_PLAYER.capitalize()} playing {VIDEO.VAL_AGENT} on {VIDEO.VAL_MAP}!\n\n\nAll {VIDEO.VAL_PLAYER.capitalize()} VODs here: https://twitch.tv/{VIDEO.VAL_PLAYER}/videos\n\n\n\n\n\n\n\n\nTAGS:\nvalorant pro player full twitch vod\nvalorant pro player full twich\nvalorant pro player full\nvalorant pro player\nvalorant pro\nvalorant\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP}\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT}\n{VIDEO.VAL_PLAYER} {VIDEO.VAL_MAP}\n{VIDEO.VAL_PLAYER}\nvalorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP} {VIDEO.VAL_PLAYER}\nvalorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP}\nvalorant pro guide {VIDEO.VAL_AGENT}\nvalorant pro guide\npro Guide\n{datetime.now().month}/{datetime.now().year}\n{datetime.now().year}"
-		logMessage(f"[{VIDEO.VIDEO_ID}] [🧾] Generated description '{description.replace("\n","↩")}'")
+		logMessage(f"[{VIDEO.VIDEO_ID}] [🧾] Generated description")
 		tags = f"valorant pro player full twitch vod,valorant pro player full twitch,valorant pro player full,valorant pro player,valorant pro,valorant,{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP},{VIDEO.VAL_PLAYER} {VIDEO.VAL_AGENT},{VIDEO.VAL_PLAYER} {VIDEO.VAL_MAP},{VIDEO.VAL_PLAYER},valorant Pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP} {VIDEO.VAL_PLAYER},valorant pro guide {VIDEO.VAL_AGENT} {VIDEO.VAL_MAP},valorant pro guide {VIDEO.VAL_AGENT},guide,{datetime.now().month}/{datetime.now().year},{datetime.now().year}"
-		logMessage(f"[{VIDEO.VIDEO_ID}] [🏷️] Generated tags '{tags}'")
+		logMessage(f"[{VIDEO.VIDEO_ID}] [🏷️] Generated tags")
 		genThumbnail(VIDEO)
 		logMessage(f"[{VIDEO.VIDEO_ID}] [🕒] Waiting for video to download")
 		vidDownloadThread.join()
