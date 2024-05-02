@@ -1,3 +1,4 @@
 yt_dlp>=2024.4.9
 google-api-python-client>=2.127.0
 google-auth-oauthlib==0.4.1
+tqdm==4.64.1
