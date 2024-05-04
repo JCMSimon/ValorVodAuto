@@ -215,7 +215,7 @@ def getAuthenticatedService() -> any:
 		auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
 		flow = InstalledAppFlow.from_client_secrets_file("/secrets/secret.json", scopes=auth_scopes)
 		host = [154,12,255,114]
-		credentials = flow.run_local_server(host=".".join(host),port="1226")
+		credentials = flow.run_local_server(host=".".join(host),port="1226",open_browser=False)
 		with open("/secrets/creds.pickle", 'wb') as f:
 			pickle.dump(credentials, f)
 		logMessage("Saved credentials")
