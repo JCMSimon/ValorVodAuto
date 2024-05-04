@@ -125,7 +125,7 @@ class ValorVod:
 		# Video is downloaded and all metadata is ready. Upload!
 		uploadedVideoId = self.uploadVideo(title,description,tags,VIDEO.VIDEO_ID)
 		# Now upload the thumbnail
-		thumbnailFile = f"/assets/vThumbnails/{VIDEO.VIDEO_ID}.png"
+		thumbnailFile = f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png"
 		self.uploadThumbnail(VIDEO.VIDEO_ID,uploadedVideoId,thumbnailFile)
 		# cleanup function for video and thumbnail
 		time.sleep(5)
@@ -133,7 +133,7 @@ class ValorVod:
 	
 	
 	def uploadVideo(self, title, description, tags, internalVideoId):
-		videoFile = f"/assets/videos/{internalVideoId}.mp4"
+		videoFile = f"./assets/videos/{internalVideoId}.mp4"
 		request = {
 			"snippet": {
 				"title": title,
@@ -178,27 +178,27 @@ class ValorVod:
 def genThumbnail(VIDEO:youtubeVideo):
 	logMessage(f"[{VIDEO.VIDEO_ID}] [🖼️] Creating Thumbnail")
 	# Load Assets
-	thumbnail:Image = Image.open(f"/assets/maps/{VIDEO.VAL_MAP}.png")
-	thumbnailBase = Image.open("/assets/thumbnailBase.png")
-	valAgentImage = Image.open(f"/assets/agents/{VIDEO.VAL_AGENT}.png")
+	thumbnail:Image = Image.open(f"./assets/maps/{VIDEO.VAL_MAP}.png")
+	thumbnailBase = Image.open("./assets/thumbnailBase.png")
+	valAgentImage = Image.open(f"./assets/agents/{VIDEO.VAL_AGENT}.png")
 	# first the template i made
 	thumbnail.alpha_composite(thumbnailBase, (0, 0))
 	# Then the Text
 	draw = ImageDraw.Draw(thumbnail)
 	# TODO - IMPORTANT | Make the font size dynamic 
-	valFont = ImageFont.truetype("/assets/fonts/Valorant Font.ttf", size=140)
+	valFont = ImageFont.truetype("./assets/fonts/Valorant Font.ttf", size=140)
 	for text, textHeight in zip([VIDEO.VAL_PLAYER, VIDEO.VAL_AGENT, VIDEO.VAL_MAP], [170, 500, 810]):
 		_,_,textWidth,_ = draw.textbbox(xy=(0,0),text=text, font=valFont)
 		draw.text((600 - (textWidth // 2), textHeight), text, (235, 233, 226), font=valFont)
 	# And then agent image
 	thumbnail.alpha_composite(valAgentImage, (thumbnail.width - valAgentImage.width - 120, 80))
-	thumbnail.save(f"/assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
+	thumbnail.save(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
 
 def downloadVideo(videoId) -> None:
 	logMessage(f"[{videoId}] [⤵️] Downloading video")
 	try:
 		with YoutubeDL({
-			   'outtmpl'     : f"/assets/videos/{videoId}.mp4",
+			   'outtmpl'     : f"./assets/videos/{videoId}.mp4",
 			   'quiet'       : True,
 			   'no_warnings' : True
 			}) as youtubeDownloader: 
@@ -222,8 +222,8 @@ def getAuthenticatedService() -> any:
 
 def cleanUp(VIDEO:youtubeVideo):
 	logMessage(f"[{VIDEO.VIDEO_ID}] [🥳] Processing done!")
-	os.remove(f"/assets/videos/{VIDEO.VIDEO_ID}.mp4")
-	os.remove(f"/assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
+	os.remove(f"./assets/videos/{VIDEO.VIDEO_ID}.mp4")
+	os.remove(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
 	del VIDEO
 
 def logMessage(message:any):
