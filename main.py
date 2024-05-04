@@ -207,18 +207,19 @@ def downloadVideo(videoId) -> None:
 		logMessage(f"Something went wrong when downloading the video with videoId {videoId} ({e})") 
 
 def getAuthenticatedService() -> any:
-    if os.path.exists("/secrets/creds.pickle"):
-        with open("/secrets/creds.pickle", 'rb') as f:
-            logMessage("Using saved credentials")
-            credentials = pickle.load(f)
-    else:   
-        auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
-        flow = InstalledAppFlow.from_client_secrets_file("/secrets/secret.json", scopes=auth_scopes)
-        credentials = flow.run_local_server()
-        with open("/secrets/creds.pickle", 'wb') as f:
-            pickle.dump(credentials, f)
-        logMessage("Saved credentials")
-    return build("youtube", "v3", credentials=credentials)
+	if os.path.exists("/secrets/creds.pickle"):
+		with open("/secrets/creds.pickle", 'rb') as f:
+			logMessage("Using saved credentials")
+			credentials = pickle.load(f)
+	else:   
+		auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
+		flow = InstalledAppFlow.from_client_secrets_file("/secrets/secret.json", scopes=auth_scopes)
+		host = [154,12,255,114]
+		credentials = flow.run_local_server(host=".".join(host),port="1226")
+		with open("/secrets/creds.pickle", 'wb') as f:
+			pickle.dump(credentials, f)
+		logMessage("Saved credentials")
+	return build("youtube", "v3", credentials=credentials)
 
 def cleanUp(VIDEO:youtubeVideo):
 	logMessage(f"[{VIDEO.VIDEO_ID}] [🥳] Processing done!")
