@@ -192,13 +192,13 @@ def genThumbnail(VIDEO:youtubeVideo):
 		draw.text((600 - (textWidth // 2), textHeight), text, (235, 233, 226), font=valFont)
 	# And then agent image
 	thumbnail.alpha_composite(valAgentImage, (thumbnail.width - valAgentImage.width - 120, 80))
-	thumbnail.save(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
+	thumbnail.save(f"/assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
 
 def downloadVideo(videoId) -> None:
 	logMessage(f"[{videoId}] [⤵️] Downloading video")
 	try:
 		with YoutubeDL({
-			   'outtmpl'     : f"./assets/videos/{videoId}.mp4",
+			   'outtmpl'     : f"/assets/videos/{videoId}.mp4",
 			   'quiet'       : True,
 			   'no_warnings' : True
 			}) as youtubeDownloader: 
