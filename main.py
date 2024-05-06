@@ -203,6 +203,7 @@ def downloadVideo(videoId) -> None:
 			   'no_warnings' : True
 			}) as youtubeDownloader: 
 			youtubeDownloader.download([f"https://youtube.com/watch?v={videoId}"])
+		logMessage(f"[{videoId}] [✅] Download completed")
 	except Exception as e:
 		logMessage(f"Something went wrong when downloading the video with videoId {videoId} ({e})") 
 
