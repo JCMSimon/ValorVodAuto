@@ -27,6 +27,8 @@ class youtubeVideo():
 		self.VIDEO_TITLE:str = data["snippet"]["title"] 
 		self.VIDEO_DESCRIPTION:str = "".join([char for char in description.replace("\n","LLBB") if char.isalnum()]) 
 		logMessage(f"[{self.VIDEO_ID}] [🗺️] Getting valorant map")
+		print(ValData.maps)
+		print(self.VIDEO_DESCRIPTION)
 		self.VAL_MAP = [vmap for vmap in ValData.maps if vmap in self.VIDEO_DESCRIPTION.lower()][0]
 		logMessage(f"[{self.VIDEO_ID}] [👤] Getting valorant agent")
 		self.VAL_AGENT = [agent for agent in ValData.agents if agent in self.VIDEO_DESCRIPTION.lower()][0]
@@ -63,6 +65,7 @@ class ValorVod:
 		while self.running:
 			latestVideos = self.getLatestVideos(maxResults=maxHistory)
 			for video in tqdm(latestVideos,f"Processing latest {len(latestVideos)} videos!"):
+				self.SWW = False # Something went wrong
 				if video["id"]["videoId"] in self.processedVideoIds:
 					logMessage(f"Already processed video with videoId {video['id']['videoId']} | skipping")
 					continue
@@ -72,7 +75,10 @@ class ValorVod:
 					daemon=True
 				)
 				vidProcessingThread.start()
-				time.sleep(self.videoProcessingDelay)
+				while not self.SWW:
+					time.sleep(self.videoProcessingDelay)
+				else:
+					continue
 			time.sleep(self.checkingInterval)
 
 	
@@ -100,7 +106,12 @@ class ValorVod:
 
 	def processVid(self, videoData:dict):
 		print("")
-		VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData["id"]["videoId"]))
+		try:
+			VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData["id"]["videoId"]))
+		except Exception as e:
+			logMessage(f"[{videoData['id']["videoId"]}] [❌] Could not get video details")
+			self.SWW = True
+			return
 		# Start download in background
 		vidDownloadThread = threading.Thread(
 			target=downloadVideo,
@@ -208,15 +219,15 @@ def downloadVideo(videoId) -> None:
 		logMessage(f"Something went wrong when downloading the video with videoId {videoId} ({e})") 
 
 def getAuthenticatedService() -> any:
-	if os.path.exists("/secrets/creds.pickle"):
-		with open("/secrets/creds.pickle", 'rb') as f:
+	if os.path.exists("./secrets/creds.pickle"):
+		with open("./secrets/creds.pickle", 'rb') as f:
 			logMessage("Using saved credentials")
 			credentials = pickle.load(f)
 	else:   
 		auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
-		flow = InstalledAppFlow.from_client_secrets_file("/secrets/secret.json", scopes=auth_scopes)
+		flow = InstalledAppFlow.from_client_secrets_file("./secrets/secret.json", scopes=auth_scopes)
 		credentials = flow.run_console()
-		with open("/secrets/creds.pickle", 'wb') as f:
+		with open("./secrets/creds.pickle", 'wb') as f:
 			pickle.dump(credentials, f)
 		logMessage("Saved credentials")
 	return build("youtube", "v3", credentials=credentials)
