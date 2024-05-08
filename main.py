@@ -27,8 +27,6 @@ class youtubeVideo():
 		self.VIDEO_TITLE:str = data["snippet"]["title"] 
 		self.VIDEO_DESCRIPTION:str = "".join([char for char in description.replace("\n","LLBB") if char.isalnum()]) 
 		logMessage(f"[{self.VIDEO_ID}] [🗺️] Getting valorant map")
-		print(ValData.maps)
-		print(self.VIDEO_DESCRIPTION)
 		self.VAL_MAP = [vmap for vmap in ValData.maps if vmap in self.VIDEO_DESCRIPTION.lower()][0]
 		logMessage(f"[{self.VIDEO_ID}] [👤] Getting valorant agent")
 		self.VAL_AGENT = [agent for agent in ValData.agents if agent in self.VIDEO_DESCRIPTION.lower()][0]
@@ -109,7 +107,7 @@ class ValorVod:
 		try:
 			VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData["id"]["videoId"]))
 		except Exception as e:
-			logMessage(f"[{videoData['id']["videoId"]}] [❌] Could not get video details")
+			logMessage(f"[{videoData['id']['videoId']}] [❌] Could not get video details")
 			self.SWW = True
 			return
 		# Start download in background
