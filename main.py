@@ -63,7 +63,6 @@ class ValorVod:
 		while self.running:
 			latestVideos = self.getLatestVideos(maxResults=maxHistory)
 			for video in tqdm(latestVideos,f"Processing latest {len(latestVideos)} videos!"):
-				self.SWW = False # Something went wrong
 				if video["id"]["videoId"] in self.processedVideoIds:
 					logMessage(f"Already processed video with videoId {video['id']['videoId']} | skipping")
 					continue
@@ -73,10 +72,12 @@ class ValorVod:
 					daemon=True
 				)
 				vidProcessingThread.start()
-				while not self.SWW:
-					time.sleep(self.videoProcessingDelay)
-				else:
+				time.sleep(5 * 60)
+				if self.SWW:
+					self.SWW = False # Something went wrong
 					continue
+				else:
+					time.sleep(self.videoProcessingDelay - (5 * 60))
 			time.sleep(self.checkingInterval)
 
 	
