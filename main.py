@@ -5,6 +5,7 @@ import time
 from tqdm import tqdm
 
 from PIL import Image, ImageDraw, ImageFont
+from PIL.Image import Image as ActualImage
 from yt_dlp import YoutubeDL
 
 import pickle
@@ -188,21 +189,22 @@ class ValorVod:
 def genThumbnail(VIDEO:youtubeVideo):
 	logMessage(f"[{VIDEO.VIDEO_ID}] [🖼️] Creating Thumbnail")
 	# Load Assets
-	thumbnail:Image = Image.open(f"./assets/maps/{VIDEO.VAL_MAP}.png")
+	ytThumbnail:ActualImage = Image.open(f"./assets/maps/{VIDEO.VAL_MAP}.png")
 	thumbnailBase = Image.open("./assets/thumbnailBase.png")
 	valAgentImage = Image.open(f"./assets/agents/{VIDEO.VAL_AGENT}.png")
 	# first the template i made
-	thumbnail.alpha_composite(thumbnailBase, (0, 0))
+	ytThumbnail.alpha_composite(thumbnailBase, (0, 0))
 	# Then the Text
-	draw = ImageDraw.Draw(thumbnail)
+	draw = ImageDraw.Draw(ytThumbnail)
 	# TODO - IMPORTANT | Make the font size dynamic 
 	valFont = ImageFont.truetype("./assets/fonts/Valorant Font.ttf", size=140)
 	for text, textHeight in zip([VIDEO.VAL_PLAYER, VIDEO.VAL_AGENT, VIDEO.VAL_MAP], [170, 500, 810]):
 		_,_,textWidth,_ = draw.textbbox(xy=(0,0),text=text, font=valFont)
 		draw.text((600 - (textWidth // 2), textHeight), text, (235, 233, 226), font=valFont)
 	# And then agent image
-	thumbnail.alpha_composite(valAgentImage, (thumbnail.width - valAgentImage.width - 120, 80))
-	thumbnail.save(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
+	ytThumbnail.alpha_composite(valAgentImage, (ytThumbnail.width - valAgentImage.width - 120, 80))
+	ytThumbnail.thumbnail((1820,720),Image.LANCZOS)
+	ytThumbnail.save(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
 
 def downloadVideo(videoId) -> None:
 	logMessage(f"[{videoId}] [⤵️] Downloading video")
