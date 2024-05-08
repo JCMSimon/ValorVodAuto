@@ -74,7 +74,8 @@ class ValorVod:
 				vidProcessingThread.start()
 				time.sleep(5 * 60)
 				if self.SWW:
-					self.SWW = False # Something went wrong
+					self.SWW = False
+					logMessage(f"[{video['id']['videoId']}] [⏭️] Skipping due to some error")
 					continue
 				else:
 					time.sleep(self.videoProcessingDelay - (5 * 60))
@@ -108,7 +109,6 @@ class ValorVod:
 		try:
 			VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData["id"]["videoId"]))
 		except Exception as e:
-			logMessage(f"[{videoData['id']['videoId']}] [❌] Could not get video details")
 			self.SWW = True
 			return
 		# Start download in background
