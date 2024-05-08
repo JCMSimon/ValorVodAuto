@@ -198,7 +198,7 @@ def downloadVideo(videoId) -> None:
 	logMessage(f"[{videoId}] [⤵️] Downloading video")
 	try:
 		with YoutubeDL({
-			   'outtmpl'     : f"/assets/videos/{videoId}.mp4",
+			   'outtmpl'     : f"./assets/videos/{videoId}.mp4",
 			   'quiet'       : True,
 			   'no_warnings' : True
 			}) as youtubeDownloader: 
