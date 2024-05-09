@@ -56,6 +56,7 @@ class ValorVod:
 		self.ytAPI = getAuthenticatedService()
 		
 	def start(self) -> None:
+		self.SWW = False
 		self.running = True
 		self.newVideoThread:threading.Thread = threading.Thread(target=self.checkForNewVideos,daemon=True)
 		self.newVideoThread.start()
