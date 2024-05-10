@@ -80,7 +80,9 @@ class ValorVod:
 					logMessage(f"[{video['id']['videoId']}] [⏭️] Skipping due to some error")
 					continue
 				else:
+					logMessage("All good, waiting for next video to be processed")
 					time.sleep(self.videoProcessingDelay - (5 * 60))
+			logMessage("All good, waiting for next checkup"
 			time.sleep(self.checkingInterval)
 
 	
