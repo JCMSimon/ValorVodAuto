@@ -54,8 +54,7 @@ class ValorVod:
 		self.CHANNEL_ID = "UCOR8JcMRg_cFKx0etV5zXBQ"
 		# %VP: Valorant Player | %VA: Valorant Agent | %VM: Valorant Map
 		self.videoTitleTemplate = "[VV] %VP - %VA - %VM" 
-		# self.videoProcessingDelay = 60 * 60 * 4 # 4 Hours
-		self.videoProcessingDelay = 60 # 4 Hours
+		self.videoProcessingDelay = 60 * 60 * 4 # 4 Hours
 		self.processedVideoIds = set()
 		for line in [
 			"[⛓️] ---",
