@@ -73,7 +73,7 @@ class ValorVod:
 		self.newVideoThread:threading.Thread = threading.Thread(target=self.checkForNewVideos,daemon=True)
 		self.newVideoThread.start()
 
-	def checkForNewVideos(self,maxHistory:int=1) -> None:
+	def checkForNewVideos(self,maxHistory:int=6) -> None:
 		while self.running:
 			latestVideos = self.getLatestVideos(maxResults=maxHistory)
 			for video in tqdm(latestVideos,f"[VV][{getTimeStamp()}] -> [⏳] Processing latest {len(latestVideos)} videos! "):
