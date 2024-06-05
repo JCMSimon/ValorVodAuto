@@ -41,7 +41,6 @@ class ValorVod:
 		# %VP: Valorant Player | %VA: Valorant Agent | %VM: Valorant Map
 		self.videoTitleTemplate = "[VV] %VP - %VA - %VM" 
 		self.videoProcessingDelay = 60 * 60 * 4 # 4 Hours
-		self.checkingInterval = int((60 * 60) * 24) # 1 Day
 		self.processedVideoIds = set()
 		for line in [
 			"---",
@@ -83,8 +82,6 @@ class ValorVod:
 					logMessage("All good, waiting for next video to be processed")
 					time.sleep(self.videoProcessingDelay - (5 * 60))
 			logMessage("All good, waiting for next checkup"
-			time.sleep(self.checkingInterval)
-
 	
 	def getLatestVideos(self,maxResults=5) -> dict:
 		logMessage(f"Getting lates {maxResults} videos")
