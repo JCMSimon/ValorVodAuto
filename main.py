@@ -13,6 +13,8 @@ import os
 
 from googleapiclient.discovery import build, MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+
 
 
 class ValData:
@@ -28,11 +30,23 @@ class youtubeVideo():
 		self.VIDEO_TITLE:str = data["snippet"]["title"] 
 		self.VIDEO_DESCRIPTION:str = "".join([char for char in description.replace("\n","LLBB") if char.isalnum()]) 
 		logMessage(f"[{self.VIDEO_ID}] [🗺️] Getting valorant map")
-		self.VAL_MAP = [vmap for vmap in ValData.maps if vmap in self.VIDEO_DESCRIPTION.lower()][0]
+		try:
+			self.VAL_MAP = [vmap for vmap in ValData.maps if vmap in self.VIDEO_DESCRIPTION.lower()][0]
+		except IndexError:
+			logMessage(f"[{self.VIDEO_ID}] [❌] Could not get valorant map")
+			raise IndexError
 		logMessage(f"[{self.VIDEO_ID}] [👤] Getting valorant agent")
-		self.VAL_AGENT = [agent for agent in ValData.agents if agent in self.VIDEO_DESCRIPTION.lower()][0]
+		try:
+			self.VAL_AGENT = [agent for agent in ValData.agents if agent in self.VIDEO_DESCRIPTION.lower()][0]
+		except IndexError:
+			logMessage(f"[{self.VIDEO_ID}] [❌] Could not get valorant agent")
+			raise IndexError
 		logMessage(f"[{self.VIDEO_ID}] [🤺] Getting valorant player")
-		self.VAL_PLAYER = self.VIDEO_DESCRIPTION.split("wwwtwitchtv")[1].split("LLBB")[0]
+		try:
+			self.VAL_PLAYER = self.VIDEO_DESCRIPTION.split("wwwtwitchtv")[1].split("LLBB")[0]
+		except IndexError:
+			logMessage(f"[{self.VIDEO_ID}] [❌] Could not get valorant player")
+			raise IndexError
 		
 class ValorVod:
 	def __init__(self) -> None:
@@ -40,15 +54,15 @@ class ValorVod:
 		self.CHANNEL_ID = "UCOR8JcMRg_cFKx0etV5zXBQ"
 		# %VP: Valorant Player | %VA: Valorant Agent | %VM: Valorant Map
 		self.videoTitleTemplate = "[VV] %VP - %VA - %VM" 
-		self.videoProcessingDelay = 60 * 60 * 4 # 4 Hours
+		# self.videoProcessingDelay = 60 * 60 * 4 # 4 Hours
+		self.videoProcessingDelay = 60 # 4 Hours
 		self.processedVideoIds = set()
 		for line in [
-			"---",
-			"ValorVod v1.0.1",
-		   f"Running on channel {self.CHANNEL_ID}",
-		   f"Checking every {self.checkingInterval} seconds for new videos",
-		   f"Processing delay: {self.videoProcessingDelay}",
-			"---"
+			"[⛓️] ---",
+			"[⛓️] ValorVod v1.1.0",
+		   f"[⛓️] Running on channel {self.CHANNEL_ID}",
+		   f"[⛓️] Processing delay: {self.videoProcessingDelay}",
+			"[⛓️] ---"
 			]:
 			logMessage(line)
 		# Init
@@ -60,12 +74,12 @@ class ValorVod:
 		self.newVideoThread:threading.Thread = threading.Thread(target=self.checkForNewVideos,daemon=True)
 		self.newVideoThread.start()
 
-	def checkForNewVideos(self,maxHistory:int=6) -> None:
+	def checkForNewVideos(self,maxHistory:int=1) -> None:
 		while self.running:
 			latestVideos = self.getLatestVideos(maxResults=maxHistory)
-			for video in tqdm(latestVideos,f"Processing latest {len(latestVideos)} videos!"):
+			for video in tqdm(latestVideos,f"[VV][{getTimeStamp()}] -> [⏳] Processing latest {len(latestVideos)} videos! "):
 				if video["id"]["videoId"] in self.processedVideoIds:
-					logMessage(f"Already processed video with videoId {video['id']['videoId']} | skipping")
+					logMessage(f"[{video['id']['videoId']}] [⏭️] Already processed video")
 					continue
 				vidProcessingThread = threading.Thread(
 					target=self.processVid, 
@@ -76,15 +90,13 @@ class ValorVod:
 				time.sleep(5 * 60)
 				if self.SWW:
 					self.SWW = False
-					logMessage(f"[{video['id']['videoId']}] [⏭️] Skipping due to some error")
+					logMessage(f"[{video['id']['videoId']}] [⏭️] Skipping due to error: ({self.latestError})")
 					continue
 				else:
-					logMessage("All good, waiting for next video to be processed")
 					time.sleep(self.videoProcessingDelay - (5 * 60))
-			logMessage("All good, waiting for next checkup"
 	
 	def getLatestVideos(self,maxResults=5) -> dict:
-		logMessage(f"Getting lates {maxResults} videos")
+		logMessage(f"[🔎] Getting latest {maxResults} videos")
 		request = self.ytAPI.search().list(
 				part='snippet',
 				channelId=self.CHANNEL_ID,
@@ -111,6 +123,7 @@ class ValorVod:
 			VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData["id"]["videoId"]))
 		except Exception as e:
 			self.SWW = True
+			self.latestError = e
 			return
 		# Start download in background
 		vidDownloadThread = threading.Thread(
@@ -136,8 +149,7 @@ class ValorVod:
 		# Video is downloaded and all metadata is ready. Upload!
 		uploadedVideoId = self.uploadVideo(title,description,tags,VIDEO.VIDEO_ID)
 		# Now upload the thumbnail
-		thumbnailFile = f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png"
-		self.uploadThumbnail(VIDEO.VIDEO_ID,uploadedVideoId,thumbnailFile)
+		self.uploadThumbnail(VIDEO.VIDEO_ID,uploadedVideoId,f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
 		# cleanup function for video and thumbnail
 		time.sleep(5)
 		cleanUp(VIDEO)
@@ -190,7 +202,7 @@ def genThumbnail(VIDEO:youtubeVideo):
 	logMessage(f"[{VIDEO.VIDEO_ID}] [🖼️] Creating Thumbnail")
 	# Load Assets
 	ytThumbnail:ActualImage = Image.open(f"./assets/maps/{VIDEO.VAL_MAP}.png")
-	thumbnailBase = Image.open("./assets/thumbnailBase.png")
+	thumbnailBase = Image.open("./assets/vThumbnails/thumbnailBase.png")
 	valAgentImage = Image.open(f"./assets/agents/{VIDEO.VAL_AGENT}.png")
 	# first the template i made
 	ytThumbnail.alpha_composite(thumbnailBase, (0, 0))
@@ -220,23 +232,31 @@ def downloadVideo(videoId) -> None:
 		logMessage(f"Something went wrong when downloading the video with videoId {videoId} ({e})") 
 
 def getAuthenticatedService() -> any:
-	if os.path.exists("/secrets/creds.pickle"):
-		with open("/secrets/creds.pickle", 'rb') as f:
-			logMessage("Using saved credentials")
+	credentials = None
+	# Check if credentials pickle file exists
+	if os.path.exists("./secrets/creds.pickle"):
+		with open("./secrets/creds.pickle", 'rb') as f:
+			logMessage("[💾] Using saved credentials")
 			credentials = pickle.load(f)
-	else:   
-		auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
-		flow = InstalledAppFlow.from_client_secrets_file("/secrets/secret.json", scopes=auth_scopes)
-		credentials = flow.run_console()
-		with open("/secrets/creds.pickle", 'wb') as f:
+	# If there are no valid credentials or they are expired, perform the OAuth flow
+	if not credentials or not credentials.valid:
+		if credentials and credentials.expired and credentials.refresh_token:
+			logMessage("[♻️] Refreshing expired credentials")
+			credentials.refresh(Request())
+		else:
+			auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
+			flow = InstalledAppFlow.from_client_secrets_file("./secrets/secret.json", scopes=auth_scopes)
+			credentials = flow.run_console()
+		# Save the credentials for the next run
+		with open("./secrets/creds.pickle", 'wb') as f:
 			pickle.dump(credentials, f)
-		logMessage("Saved credentials")
+		logMessage("[🏦] Saved credentials")
 	return build("youtube", "v3", credentials=credentials)
 
 def cleanUp(VIDEO:youtubeVideo):
-	logMessage(f"[{VIDEO.VIDEO_ID}] [🥳] Processing done!")
 	os.remove(f"./assets/videos/{VIDEO.VIDEO_ID}.mp4")
 	os.remove(f"./assets/vThumbnails/{VIDEO.VIDEO_ID}.png")
+	logMessage(f"[{VIDEO.VIDEO_ID}] [🥳] Processing done!")
 	del VIDEO
 
 def logMessage(message:any):

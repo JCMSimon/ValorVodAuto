@@ -1,1 +1,5 @@
 secrets/*
+.venv
+assets/videos/*.mp4
+assets/vThumbnails/*.png
+!assets/vThumbnails/thumbnailBase.png
