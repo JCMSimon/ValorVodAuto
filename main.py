@@ -233,8 +233,8 @@ def downloadVideo(videoId) -> None:
 def getAuthenticatedService() -> any:
 	credentials = None
 	# Check if credentials pickle file exists
-	if os.path.exists("./secrets/creds.pickle"):
-		with open("./secrets/creds.pickle", 'rb') as f:
+	if os.path.exists("/secrets/creds.pickle"):
+		with open("/secrets/creds.pickle", 'rb') as f:
 			logMessage("[💾] Using saved credentials")
 			credentials = pickle.load(f)
 	# If there are no valid credentials or they are expired, perform the OAuth flow
@@ -244,10 +244,10 @@ def getAuthenticatedService() -> any:
 			credentials.refresh(Request())
 		else:
 			auth_scopes = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube.readonly"]
-			flow = InstalledAppFlow.from_client_secrets_file("./secrets/secret.json", scopes=auth_scopes)
+			flow = InstalledAppFlow.from_client_secrets_file("/secrets/secret.json", scopes=auth_scopes)
 			credentials = flow.run_console()
 		# Save the credentials for the next run
-		with open("./secrets/creds.pickle", 'wb') as f:
+		with open("/secrets/creds.pickle", 'wb') as f:
 			pickle.dump(credentials, f)
 		logMessage("[🏦] Saved credentials")
 	return build("youtube", "v3", credentials=credentials)
