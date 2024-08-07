@@ -19,7 +19,7 @@ from google.auth.exceptions import RefreshError
 class ValData:
 	# TODO | Gather these dynamically
 	agents = ["brimstone", "viper", "omen", "killjoy", "cypher", "sova", "sage", "phoenix", "jett","reyna", "raze", "breach", "skye", "yoru", "astra", "kayo", "chamber", "neon", "fade","harbor", "gekko", "deadlock", "iso", "clove"]
-	maps = ["bind", "icebox", "split", "ascent", "breeze", "lotus", "sunset", "haven", "fracture", "pearl"]
+	maps = ["abyss","bind", "icebox", "split", "ascent", "breeze", "lotus", "sunset", "haven", "fracture", "pearl"]
 	
 
 class youtubeVideo():
