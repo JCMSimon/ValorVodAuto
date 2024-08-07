@@ -17,10 +17,8 @@ from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
 
 class ValData:
-	# TODO | Gather these dynamically
 	agents = ["brimstone", "viper", "omen", "killjoy", "cypher", "sova", "sage", "phoenix", "jett","reyna", "raze", "breach", "skye", "yoru", "astra", "kayo", "chamber", "neon", "fade","harbor", "gekko", "deadlock", "iso", "clove"]
-	maps = ["abyss","bind", "icebox", "split", "ascent", "breeze", "lotus", "sunset", "haven", "fracture", "pearl"]
-	
+	maps = ["abyss","bind", "icebox", "split", "ascent", "breeze", "lotus", "sunset", "haven", "fracture", "pearl"]	
 
 class youtubeVideo():
 	def __init__(self,data,description) -> None:
@@ -226,7 +224,7 @@ def getAuthenticatedService() -> any:
 		if credentials and credentials.expired and credentials.refresh_token:
 			logMessage("[♻️] Trying to refresh expired credentials")
 			try:
-				credentials.refresh(Request()) # TODO | I doubt this is working as intended cause im not even using the refresh token
+				credentials.refresh(Request())
 			except RefreshError:
 				logMessage("[❌] Refresh token expired!")
 				credentials = getCredsManually()
