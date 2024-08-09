@@ -28,7 +28,6 @@ class youtubeVideo():
 		self.VIDEO_DESCRIPTION:str = "".join([char for char in description.replace("\n","LLBB") if char.isalnum()]) 
 		logMessage(f"[{self.VIDEO_ID}] [🗺️] Getting valorant map")
 		try:
-			print(self.VIDEO_DESCRIPTION)
 			self.VAL_MAP = [vmap for vmap in ValData.maps if vmap in self.VIDEO_DESCRIPTION.lower()][0]
 		except IndexError:
 			logMessage(f"[{self.VIDEO_ID}] [❌] Could not get valorant map")
@@ -58,10 +57,10 @@ class ValorVod:
 		
 	def printStart(self):
 		for line in [
-				"[⛓️] ---",
-				"[⛓️] ValorVod v1.2.0",
-			f"[⛓️] Running on channel {self.CHANNEL_ID}",
-				"[⛓️] ---"
+				 "[⛓️] ---",
+				 "[⛓️] ValorVod v1.2.0",
+				f"[⛓️] Running on channel {self.CHANNEL_ID}",
+				 "[⛓️] ---"
 				]:
 			logMessage(line)
 		
@@ -108,7 +107,7 @@ class ValorVod:
 	def processVid(self, videoData:dict):
 		videoData = videoData[0]
 		try:
-			VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData[0]["id"]["videoId"]))
+			VIDEO = youtubeVideo(videoData,self.getVideoDescription(videoData["id"]["videoId"]))
 		except Exception as e:
 			logMessage(f"[{videoData["id"]["videoId"]}] [❌] Error processing video. ({e})")
 			return
